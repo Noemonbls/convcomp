@@ -231,8 +231,8 @@ def create_stimuli_experiment(
 
 
 res = create_stimuli_experiment(
-    start_mean=1200,
-    end_mean=1800,
+    start_mean=1300,
+    end_mean=1700,
     list_std=[20, 150],
     list_npoints=[2, 7],
     n_iteration_per_condition=2,
