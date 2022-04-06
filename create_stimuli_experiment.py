@@ -38,9 +38,9 @@ def create_draw_experiment(sample_to_draw, seed, size_sample=6, mean_factor=5, y
 
 def create_one_plot(sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax):
     figure, axis = plt.subplots(1, 1, figsize=(20, 3))
+    plt.rc("font", size=25)
     axis.set_xlim(xmin=xmin, xmax=xmax)
     plt.setp(axis, xticks=[1000, 1250, 1500, 1750, 2000])
-    plt.rc('font', size=25)
     axis.set_ylim(ymin=ymin, ymax=ymax)
     axis.get_yaxis().set_visible(False)
     axis.grid(False)
@@ -134,11 +134,11 @@ def create_stimuli_experiment(
 
     # Plotting
     # x_line = list(range(xmin, xmax + 250, 250))
-    x_line = [750,1000,1250,1500,1750,2000]
+    x_line = [750, 1000, 1250, 1500, 1750, 2000]
     y_line = [1000] * len(x_line)
 
     dict_conditions = {
-        0: "convergent_small_",
+        0: "convergent_small",
         1: "convergent_large",
         2: "nonconvergent_small",
         3: "nonconvergent_large",
