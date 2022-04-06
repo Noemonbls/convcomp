@@ -209,7 +209,9 @@ def create_stimuli_experiment(
             final_result[:, iteration, sample] = fig_list[:, iteration]
 
     for sample in range(n_samples):
-        data_dir = os.path.join(os.getcwd(), f"sample_{sample+1}")
+        data_dir = os.path.join(
+            os.getcwd(), f"seed_{seed}_sample{sample+1}_npoints_{list_npoints}"
+        )
 
         try:
             os.mkdir(data_dir)
@@ -223,7 +225,7 @@ def create_stimuli_experiment(
                 figure = final_result[i_figure, iteration, sample]
                 condition = dict_conditions[i_figure]
                 figure.savefig(
-                    fname=f"{data_dir}\\{condition}_iteration{iteration+1}_sample{sample+1}.png",
+                    fname=f"{data_dir}\\{condition}_iteration{iteration+1}_sample{sample+1}_seed{seed}_npoints_{list_npoints}.png",
                     bbox_inches="tight",
                     pad_inches=0,
                     transparent=True,
@@ -236,7 +238,7 @@ res = create_stimuli_experiment(
     list_std=[20, 150],
     list_npoints=[2, 7],
     n_iteration_per_condition=2,
-    n_samples=10,
+    n_samples=5,
     mean_factor=1,
     seed=0,
     xmin=1000,
