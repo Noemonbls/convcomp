@@ -1,12 +1,11 @@
 import numpy as np
 import plotly.express as px
+import matplotlib
 import matplotlib.pyplot as plt
 import os
 
 plt.rcParams["figure.figsize"] = (18, 9)
 plt.style.use("ggplot")
-
-from matplotlib import patheffects
 
 
 def create_normal_distrib(mean, std, size, seed):
@@ -40,6 +39,8 @@ def create_draw_experiment(sample_to_draw, seed, size_sample=6, mean_factor=5, y
 def create_one_plot(sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax):
     figure, axis = plt.subplots(1, 1, figsize=(20, 3))
     axis.set_xlim(xmin=xmin, xmax=xmax)
+    plt.setp(axis, xticks=[1000, 1250, 1500, 1750, 2000])
+    plt.rc('font', size=25)
     axis.set_ylim(ymin=ymin, ymax=ymax)
     axis.get_yaxis().set_visible(False)
     axis.grid(False)
@@ -132,7 +133,8 @@ def create_stimuli_experiment(
     list_mean = list(np.linspace(start_mean, end_mean, n_conditions))
 
     # Plotting
-    x_line = list(range(xmin, xmax + 200, 100))
+    # x_line = list(range(xmin, xmax + 250, 250))
+    x_line = [750,1000,1250,1500,1750,2000]
     y_line = [1000] * len(x_line)
 
     dict_conditions = {
@@ -227,23 +229,22 @@ def create_stimuli_experiment(
                 figure.savefig(
                     fname=f"{data_dir}\\{condition}_iteration{iteration+1}_sample{sample+1}_seed{seed}_npoints_{list_npoints}.png",
                     bbox_inches="tight",
-                    pad_inches=0,
                     transparent=True,
                 )
+    return final_result
 
 
 res = create_stimuli_experiment(
     start_mean=1300,
     end_mean=1700,
     list_std=[20, 150],
-    list_npoints=[2, 7],
+    list_npoints=[3, 10],
     n_iteration_per_condition=2,
-    n_samples=5,
+    n_samples=10,
     mean_factor=1,
     seed=0,
-    xmin=1000,
-    xmax=2000,
+    xmin=999,
+    xmax=2001,
     ymin=800,
     ymax=1500,
 )
-
