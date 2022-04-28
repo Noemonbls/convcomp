@@ -272,7 +272,7 @@ def create_stimuli_experiment(
 
     for sample in range(n_samples):
         data_dir = os.path.join(
-            os.getcwd(), f"seed_{seed}_sample{sample+1}_npoints_{list_npoints}"
+            os.getcwd(), f"seed_{seed}_sample{sample+1}_npoints_{list_npoints}_highlight_{highlight_arrow}"
         )
 
         try:
