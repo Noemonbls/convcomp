@@ -36,8 +36,10 @@ def create_draw_experiment(sample_to_draw, seed, size_sample=6, mean_factor=5, y
     return (small_sample_x, small_sample_y)
 
 
-def create_one_plot(sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax):
+def create_one_plot(sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax, mean):
+
     plt.rc("font", size=25)
+    plt.title(f"mean = {mean}")
     figure, axis = plt.subplots(1, 1, figsize=(20, 3))
     axis.set_xlim(xmin=xmin, xmax=xmax)
     plt.setp(axis, xticks=[1000, 1250, 1500, 1750, 2000])
@@ -61,9 +63,10 @@ def create_one_plot(sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax):
 
 
 def create_one_plot_arrows_diff_colors(
-    sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax, seed
+    sample_x, sample_y, x_line, y_line, xmin, xmax, ymin, ymax, seed, mean
 ):
     plt.rc("font", size=25)
+    plt.title(f"mean = {mean}")
     figure, axis = plt.subplots(1, 1, figsize=(20, 3))
     axis.set_xlim(xmin=xmin, xmax=xmax)
     plt.setp(axis, xticks=[1000, 1250, 1500, 1750, 2000])
@@ -71,7 +74,7 @@ def create_one_plot_arrows_diff_colors(
     axis.get_yaxis().set_visible(False)
     axis.grid(False)
     rng = np.random.default_rng(seed)
-    highlighted_arrow_index = rng.integers(low = 0, high = len(sample_x))
+    highlighted_arrow_index = rng.integers(low=0, high=len(sample_x))
 
     for index_arrow in range(len(sample_x)):
         if index_arrow == highlighted_arrow_index:
@@ -86,7 +89,7 @@ def create_one_plot_arrows_diff_colors(
             width=4,
             head_length=150,
             length_includes_head=True,
-            color = colorVal
+            color=colorVal,
         )
 
     axis.errorbar(x_line, y_line, yerr=75, alpha=0.7)
@@ -142,6 +145,7 @@ def create_one_plot_from_scratch(
             xmax=xmax,
             ymin=ymin,
             ymax=ymax,
+            mean=mean,
         )
     elif highlight_arrow:
         figure = create_one_plot_arrows_diff_colors(
@@ -154,6 +158,7 @@ def create_one_plot_from_scratch(
             ymin=ymin,
             ymax=ymax,
             seed=seed,
+            mean=mean,
         )
 
     return figure
@@ -223,7 +228,7 @@ def create_stimuli_experiment(
                 xmax=xmax,
                 ymin=ymin,
                 ymax=ymax,
-                highlight_arrow=highlight_arrow
+                highlight_arrow=highlight_arrow,
             )
             fig_list[1, iteration] = create_one_plot_from_scratch(
                 mean=list_of_means[iteration][1],
@@ -237,7 +242,7 @@ def create_stimuli_experiment(
                 xmax=xmax,
                 ymin=ymin,
                 ymax=ymax,
-                highlight_arrow=highlight_arrow
+                highlight_arrow=highlight_arrow,
             )
             fig_list[2, iteration] = create_one_plot_from_scratch(
                 mean=list_of_means[iteration][2],
@@ -251,7 +256,7 @@ def create_stimuli_experiment(
                 xmax=xmax,
                 ymin=ymin,
                 ymax=ymax,
-                highlight_arrow=highlight_arrow
+                highlight_arrow=highlight_arrow,
             )
             fig_list[3, iteration] = create_one_plot_from_scratch(
                 mean=list_of_means[iteration][3],
@@ -265,14 +270,15 @@ def create_stimuli_experiment(
                 xmax=xmax,
                 ymin=ymin,
                 ymax=ymax,
-                highlight_arrow=highlight_arrow
+                highlight_arrow=highlight_arrow,
             )
 
             final_result[:, iteration, sample] = fig_list[:, iteration]
 
     for sample in range(n_samples):
         data_dir = os.path.join(
-            os.getcwd(), f"seed_{seed}_sample{sample+1}_npoints_{list_npoints}_highlight_{highlight_arrow}"
+            os.getcwd(),
+            f"seed_{seed}_sample{sample+1}_npoints_{list_npoints}_highlight_{highlight_arrow}",
         )
 
         try:
@@ -287,7 +293,7 @@ def create_stimuli_experiment(
                 figure = final_result[i_figure, iteration, sample]
                 condition = dict_conditions[i_figure]
                 figure.savefig(
-                    fname=f"{data_dir}\\{condition}_iteration{iteration+1}_sample{sample+1}_seed{seed}_npoints_{list_npoints}_highlight_{highlight_arrow}.png",
+                    fname=f"{data_dir}\\{condition}_iteration{iteration+1}_sample{sample+1}_seed{seed}_list_npoints_{list_npoints}_highlight_{highlight_arrow}.png",
                     bbox_inches="tight",
                     transparent=True,
                 )
@@ -297,8 +303,8 @@ def create_stimuli_experiment(
 res = create_stimuli_experiment(
     start_mean=1300,
     end_mean=1700,
-    list_std=[20,150],
-    list_npoints=[3,10],
+    list_std=[20, 150],
+    list_npoints=[3, 10],
     n_iteration_per_condition=2,
     n_samples=3,
     mean_factor=1,
@@ -307,5 +313,5 @@ res = create_stimuli_experiment(
     xmax=2001,
     ymin=800,
     ymax=1500,
-    highlight_arrow=True
+    highlight_arrow=True,
 )
