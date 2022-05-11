@@ -19,9 +19,7 @@ def create_normal_distrib(mean, std, size, seed):
 
 def create_draw_experiment(sample_to_draw, seed, npoints=3, mean_factor=1, y=1000):
     rng = np.random.default_rng(seed)
-    mean_sample_x = list(
-        rng.choice(sample_to_draw, size=npoints * mean_factor)
-    )
+    mean_sample_x = list(rng.choice(sample_to_draw, size=npoints * mean_factor))
     sample_x = [0] * npoints
     i = 0
     j = 0
@@ -112,14 +110,9 @@ def create_one_plot_from_scratch(
     highlight_arrow=False,
 ):
 
-    sample = create_normal_distrib(mean=mean, std=std, size=10000, seed=seed)
+    sample_x = create_normal_distrib(mean=mean, std=std, size=npoints, seed=seed)
 
-    sample_x, sample_y = create_draw_experiment(
-        sample_to_draw=sample,
-        npoints=npoints,
-        mean_factor=mean_factor,
-        seed=seed,
-    )
+    sample_y = [1000] * len(sample_x)
     figure = create_one_plot(
         sample_x=sample_x,
         sample_y=sample_y,
@@ -135,7 +128,6 @@ def create_one_plot_from_scratch(
     )
 
     return figure
-
 
 
 def create_stimuli_experiment_same_mean_between_conditions(
@@ -183,7 +175,7 @@ def create_stimuli_experiment_same_mean_between_conditions(
                     std=list_conditions[icondition][0],
                     npoints=list_conditions[icondition][1],
                     mean_factor=mean_factor,
-                    seed=seed + sample + icondition + iteration,
+                    seed=seed,
                     x_line=x_line,
                     y_line=y_line,
                     xmin=xmin,
@@ -203,10 +195,10 @@ def create_stimuli_experiment_same_mean_between_conditions(
 res = create_stimuli_experiment_same_mean_between_conditions(
     start_mean=1300,
     end_mean=1700,
-    list_std=[20,150],
-    list_npoints=[10],
-    n_iteration_per_condition=4,
-    n_samples=4,
+    list_std=[20, 150],
+    list_npoints=[3],
+    n_iteration_per_condition=2,
+    n_samples=1,
     mean_factor=1,
     seed=0,
     xmin=999,
