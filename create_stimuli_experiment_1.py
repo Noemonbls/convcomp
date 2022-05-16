@@ -313,5 +313,5 @@ res = create_stimuli_experiment(
     xmax=2001,
     ymin=800,
     ymax=1500,
-    highlight_arrow=True,
+    highlight_arrow=False,
 )
