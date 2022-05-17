@@ -4,51 +4,30 @@ import matplotlib
 import matplotlib.pyplot as plt
 import os
 
-# This time, we want to have the same means between different conditions.
+# This time, we do not use a normal distribution but instead a uniform draw within a given span
 # We want to make a different draw between condition / each sample. But we have X iteration per condition, with predefined means
 
 plt.rcParams["figure.figsize"] = (18, 9)
 plt.style.use("ggplot")
 
 
-def create_normal_distrib(mean, std, size, seed):
+def create_uniform_draw(mean, span, npoints, seed):
     rng = np.random.default_rng(seed)
-    normal_distrib = rng.normal(loc=mean, scale=std, size=size)
-    return normal_distrib
+    list_values = np.arange(start=mean - span / 2, stop=(mean + span / 2), step=5)
+    uniform_draw = rng.choice(list_values, size=npoints, replace=False)
+
+    return uniform_draw
 
 
-def create_draw_experiment(sample_to_draw, seed, npoints=3, mean_factor=1, y=1000):
+def create_normal_draw(mean, std, npoints, seed):
     rng = np.random.default_rng(seed)
-    mean_sample_x = list(rng.choice(sample_to_draw, size=npoints * mean_factor))
-    sample_x = [0] * npoints
-    i = 0
-    j = 0
-    while j < npoints:
-        k = 0
-        while k < mean_factor:
-            sample_x[j] = sample_x[j] + mean_sample_x[i]
-            i += 1
-            k += 1
+    normal_draw = rng.normal(mean, std, size=npoints)
 
-        sample_x[j] = sample_x[j] / mean_factor
-        j += 1
-    sample_y = [y] * npoints
-
-    return (sample_x, sample_y)
+    return normal_draw
 
 
 def create_one_plot(
-    sample_x,
-    sample_y,
-    x_line,
-    y_line,
-    xmin,
-    xmax,
-    ymin,
-    ymax,
-    mean,
-    seed,
-    highlight_arrow=False,
+    sample_x, x_line, y_line, xmin, xmax, ymin, ymax, mean, seed, highlight_arrow=False,
 ):
 
     plt.rc("font", size=25)
@@ -97,9 +76,8 @@ def create_one_plot(
 
 def create_one_plot_from_scratch(
     mean,
-    std,
+    span,
     npoints,
-    mean_factor,
     seed,
     x_line,
     y_line,
@@ -108,14 +86,21 @@ def create_one_plot_from_scratch(
     ymin,
     ymax,
     highlight_arrow=False,
+    distrib_type="uniform",
 ):
 
-    sample_x = create_normal_distrib(mean=mean, std=std, size=npoints, seed=seed)
+    if distrib_type == "uniform":
 
-    sample_y = [1000] * len(sample_x)
+        sample_x = create_uniform_draw(mean=mean, span=span, npoints=npoints, seed=seed)
+
+    elif distrib_type == "normal":
+
+        sample_x = create_normal_draw(mean=mean, std=span, npoints=npoints, seed=seed)
+
+    apparent_mean_sample = np.mean(sample_x)
+
     figure = create_one_plot(
         sample_x=sample_x,
-        sample_y=sample_y,
         x_line=x_line,
         y_line=y_line,
         xmin=xmin,
@@ -127,39 +112,57 @@ def create_one_plot_from_scratch(
         highlight_arrow=highlight_arrow,
     )
 
-    return figure
+    return figure, int(apparent_mean_sample)
 
-
-def create_stimuli_experiment_same_mean_between_conditions(
+def create_stimuli_experiment_uniform_draw(
     start_mean=1300,
     end_mean=1700,
-    list_std=[20, 150],
+    list_span=[20, 150],
     list_npoints=[2, 7],
     n_iteration_per_condition=2,
     n_samples=5,
-    mean_factor=1,
-    seed=0,
+    global_seed=0,
     xmin=1000,
     xmax=2000,
     ymin=800,
     ymax=1500,
     highlight_arrow=False,
+    distrib_type="normal",
 ):
 
     """
     Final Function to call to save the figures on your computer
     """
 
-    list_mean = list(np.linspace(start_mean, end_mean, n_iteration_per_condition))
-    list_conditions = [(std, npoints) for std in list_std for npoints in list_npoints]
+    list_conditions = [
+        (span, npoints) for span in list_span for npoints in list_npoints
+    ]
+    list_mean = list(
+        np.linspace(
+            start_mean,
+            end_mean,
+            len(list_conditions) * n_iteration_per_condition,
+            dtype=int,
+        )
+    )
+
+    generator_list_seed = np.random.default_rng(global_seed)
+    list_seeds = np.arange(0, (len(list_mean) * n_samples + 1) * 1000)
+    list_seeds = generator_list_seed.choice(
+        list_seeds, size=len(list_mean) * n_samples + 1, replace=False,
+    )
+
+
 
     # Plotting
     x_line = [1000, 1250, 1500, 1750, 2000]
     y_line = [1000] * len(x_line)
+    seed_counter = 0
+
     for sample in range(n_samples):
         data_dir = os.path.join(
             os.getcwd(),
-            f"experiment_2_seed_{seed}_sample{sample+1}_npoints_{list_npoints}_std_{list_std}_highlight_{highlight_arrow}",
+            f"experiment_3_alternant_means_globalseed_{global_seed}_sample{sample+1}_npoints_{list_npoints}_span_{list_span}_highlight_{highlight_arrow}_distrib_{distrib_type}",
         )
 
         try:
@@ -168,14 +171,16 @@ def create_stimuli_experiment_same_mean_between_conditions(
         except FileExistsError:
             pass
 
-        for iteration in range(len(list_mean)):
+        mean_counter = 0
+
+
+        for iteration in range(n_iteration_per_condition):
             for icondition in range(len(list_conditions)):
-                figure = create_one_plot_from_scratch(
-                    mean=list_mean[iteration],
-                    std=list_conditions[icondition][0],
+                figure, apparent_mean = create_one_plot_from_scratch(
+                    mean=list_mean[mean_counter],
+                    span=list_conditions[icondition][0],
                     npoints=list_conditions[icondition][1],
-                    mean_factor=mean_factor,
-                    seed=seed,
+                    seed=list_seeds[seed_counter],
                     x_line=x_line,
                     y_line=y_line,
                     xmin=xmin,
@@ -183,27 +188,30 @@ def create_stimuli_experiment_same_mean_between_conditions(
                     ymin=ymin,
                     ymax=ymax,
                     highlight_arrow=highlight_arrow,
+                    distrib_type=distrib_type,
                 )
+                seed_counter += 1
 
                 figure.savefig(
-                    fname=f"{data_dir}\\mean_{list_mean[iteration]}_std_{list_conditions[icondition][0]}_sample_{sample+1}_seed_{seed}_npoints_{list_conditions[icondition][1]}_highlight_{highlight_arrow}_mean_factor_{mean_factor}.png",
+                    fname=f"{data_dir}\\mean_{list_mean[mean_counter]}_span_{list_conditions[icondition][0]}_sample_{sample+1}_seed_{list_seeds[seed_counter]}_npoints_{list_conditions[icondition][1]}_apparent_mean_{apparent_mean}.png",
                     bbox_inches="tight",
                     transparent=True,
                 )
+                mean_counter += 1
+        list_conditions[0],list_conditions[1] = list_conditions[1],list_conditions[0]
 
-
-res = create_stimuli_experiment_same_mean_between_conditions(
+res = create_stimuli_experiment_uniform_draw(
     start_mean=1300,
     end_mean=1700,
-    list_std=[20, 150],
     list_npoints=[3],
+    list_span=[60, 600],
     n_iteration_per_condition=2,
-    n_samples=1,
-    mean_factor=1,
-    seed=42,
+    n_samples=2,
+    global_seed=2,
     xmin=999,
     xmax=2001,
     ymin=800,
     ymax=1500,
     highlight_arrow=False,
+    distrib_type="uniform",
 )
